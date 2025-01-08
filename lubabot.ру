@@ -1,7 +1,8 @@
 import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-import time
+import asyncio
+import signal
 
 # Включение логирования
 logging.basicConfig(
@@ -17,19 +18,27 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("Список доступных команд:\n/start - начать\n/help - помощь")
 
-# Основной блок
+# Инициализация бота
+application = ApplicationBuilder().token("7766596531:AAEll9NJOEq2SuiPBaYxM_REfdeuX4D08qk").build()
+application.add_handler(CommandHandler("start", start))
+application.add_handler(CommandHandler("help", help_command))
+
+# Функция для корректного завершения
+def shutdown():
+    logging.info("Shutting down bot...")
+    asyncio.get_event_loop().stop()
+
+# Обработка сигналов для завершения
+signal.signal(signal.SIGINT, lambda s, f: shutdown())
+signal.signal(signal.SIGTERM, lambda s, f: shutdown())
+
+# Основной блок запуска
 if __name__ == "__main__":
-    while True:
-        try:
-            # Инициализация бота
-            application = ApplicationBuilder().token("7766596531:AAEll9NJOEq2SuiPBaYxM_REfdeuX4D08qk").build()
-            
-            # Регистрация команд
-            application.add_handler(CommandHandler("start", start))
-            application.add_handler(CommandHandler("help", help_command))
-            
-            # Запуск бота
-            application.run_polling()
-        except Exception as e:
-            logging.error(f"Ошибка: {e}")
-            time.sleep(5)  # Задержка перед перезапуском
+    try:
+        application.run_polling()
+    except asyncio.CancelledError:
+        logging.error("Polling loop was cancelled.")
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+    finally:
+        asyncio.get_event_loop().close()
