@@ -22,7 +22,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     await update.message.reply_text("Список доступных команд:\n/start - начать\n/help - помощь")
 
 # Инициализация бота
-application = ApplicationBuilder().token("ВАШ_ТОКЕН").build()
+application = ApplicationBuilder().token("7766596531:AAEll9NJOEq2SuiPBaYxM_REfdeuX4D08qk").build()
 application.add_handler(CommandHandler("start", start))
 application.add_handler(CommandHandler("help", help_command))
 
