@@ -28,7 +28,7 @@ application.add_handler(CommandHandler("help", help_command))
 
 # Асинхронная установка вебхука
 async def set_webhook():
-    url = "https://ВАШ_ДОМЕН_ИЛИ_IP/webhook"
+    url = "https://123.45.67.89/webhook"
     await application.bot.set_webhook(url=url)
     logging.info(f"Webhook установлен на {url}")
 
