@@ -1,10 +1,7 @@
 import logging
+import time
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-from flask import Flask
-
-# Создаем Flask-приложение
-app = Flask(__name__)
 
 # Включение логирования
 logging.basicConfig(
@@ -22,23 +19,20 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "Список доступных команд:\n/start - начать\n/help - помощь"
     )
 
-# Основной блок
+# Основной блок с обработкой исключений
 if __name__ == "__main__":
-    # Вставьте свой токен Telegram Bot API вместо YOUR_TOKEN
-    application = ApplicationBuilder().token("7766596531:AAEll9NJOEq2SuiPBaYxM_REfdeuX4D08qk").build()
+    while True:
+        try:
+            # Создание приложения
+            application = ApplicationBuilder().token("7766596531:AAEll9NJOEq2SuiPBaYxM_REfdeuX4D08qk").build()
 
-    # Регистрация команд
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
+            # Регистрация команд
+            application.add_handler(CommandHandler("start", start))
+            application.add_handler(CommandHandler("help", help_command))
 
-    # Маршрут для Health Checks
-    @app.route('/healthz', methods=['GET'])
-    def health_check():
-        return "OK", 200
+            # Запуск бота
+            application.run_polling()
 
-    # Запуск Telegram бота в отдельном потоке
-    import threading
-    threading.Thread(target=application.run_polling, daemon=True).start()
-
-    # Запуск Flask-сервера
-    app.run(host='0.0.0.0', port=5000)
+        except Exception as e:
+            logging.error(f"Произошла ошибка: {e}")
+            time.sleep(5)  # Ожидание перед перезапуском
